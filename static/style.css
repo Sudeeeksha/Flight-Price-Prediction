@@ -1,0 +1,91 @@
+/* General Styling */
+body {
+    background-color: #eaf3ff;
+    font-family: 'Poppins', sans-serif;
+    background: url('../static/flat\ cartoon\ side\ view\ of\ airplane\ in\ the\ sky.jpg') no-repeat center center fixed;
+        background-size: cover;
+}
+
+/* Navbar Styling */
+.navbar {
+    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.1);
+    padding: 15px 0;
+    background-color: #68a1ec;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Centered Form Container */
+.container {
+    position: relative;
+    max-width: 500px;
+    margin: 40px auto;
+    padding-left: 190px;
+}
+
+.formcontainer{
+    width: 500px;
+    position: absolute ;
+    left: 35%;
+    top: 23%;
+}
+
+/* Form Card Styling */
+form {
+    background: #ffffff;
+    padding: 25px 95px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    height: 400px;
+}
+
+/* Label Styling */
+.form-label {
+    font-weight: 600;
+    color: #333;
+}
+
+/* Input and Dropdown Styling */
+.form-control,
+.form-select {
+    border-radius: 8px;
+    background-color: #e8fcff;
+    padding: 10px;
+    border: 1px solid #c6fffd;
+    transition: all 0.3s ease-in-out;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 6px rgba(0, 123, 255, 0.5);
+}
+
+/* Button Styling */
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 8px;
+    transition: background 0.3s ease-in-out;
+    margin-top: 20px;
+    margin-left: 110px;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    
+}
+
+.prediction-box{
+    margin-top: 30px;
+}
+
+.field{
+    margin-top: 20px;
+}

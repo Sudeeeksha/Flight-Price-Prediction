@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Prediction</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/style.css" />
+</head>
+<body>
+        <!-- Navbar -->
+        <nav class="navbar navbar-dark bg-primary">
+            <div class="container">
+                <span class="navbar-brand mb-0 h1" style="color: rgb(68, 68, 68);">Flight Price Prediction</span>
+            </div>
+        </nav>
+    
+        <div class="formcontainer">
+            <form action="\flight_predict" method="post">
+                
+                <!-- Departure Date -->
+                <div class="field">
+                    <label for="departure_date" class="form-label">Departure Date</label>
+                    <input type="datetime-local" id="departure_date" name="departure_date" class="form-control" required>
+                </div>
+    
+                <!-- Arrival Date -->
+                <div class="field">
+                    <label for="arrival_date" class="form-label">Arrival Date</label>
+                    <input type="datetime-local" id="arrival_date" name="arrival_date" class="form-control" required>
+                </div>
+    
+                <!-- Source -->
+                <div class="field">
+                    <label for="source" class="form-label">Source</label>
+                    <select id="source" name="source" class="form-select" required>
+                        <option value="" disabled selected>Select Source</option>
+                        <option value="Delhi">New Delhi</option>
+                        <option value="Mumbai">Mumbai</option>
+                        <option value="Kolkata">Kolkata</option>
+                        <option value="Chennai">Chennai</option>
+                    </select>
+                </div>
+    
+                <!-- Destination -->
+                    <div class="field">
+                        <label for="destination" class="form-label">Destination</label>
+                        <select id="destination" name="destination" class="form-select" required>
+                            <option value="" disabled selected>Select Destination</option>
+                            <option value="New Delhi">New Delhi</option>
+                            <option value="Delhi">Delhi</option>
+                            <option value="Cochin">Cochin</option>
+                            <option value="Hyderabad">Hyderabad</option>
+                            <option value="Kolkata">Kolkata</option>
+                        </select>
+                    </div>
+    
+                <!-- Stopage -->
+                <div class="field">
+                    <label for="stopage" class="form-label">Stopage</label>
+                    <select id="stopage" name="stopage" class="form-select" required>
+                        <option value="" disabled selected>Select Stopage</option>
+                        <option value="0">Non-stop</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </div>
+    
+                <!-- Select Airline -->
+                <div class="field   ">
+                    <label for="airline" class="form-label">Select Airline</label>
+                    <select id="airline" name="airline" class="form-select" required>
+                        <option value="" disabled selected>Select Airline</option>
+                        <option value="Jet Airways">Jet Airways </option>                                         
+                        <option value="IndiGo">IndiGo</option>                                            
+                        <option value="Air India">Air India</option>                                            
+                        <option value="Multiple carriers">Multiple carriers</option>                                    
+                        <option value="SpiceJet">SpiceJet</option>                                              
+                        <option value="Vistara">Vistara</option>                                               
+                        <option value="GoAir"> GoAir</option>                                                
+                        <option value="Multiple carriers Premium economy">Multiple carriers Premium economy</option>                      
+                        <option value="Jet Airways Business">Jet Airways Business</option>                                  
+                        <option value="Vistara Premium economy">Vistara Premium economy</option>                               
+                        <option value=" Trujet"> Trujet   </option>                                            
+                    </select>
+                </div>
+    
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary w-100" value="predict">Predict</button>
+            </form>
+            
+              <div class="prediction-box">
+                <h3>{{ prediction_text }}</h3>
+            </div>
+            
+        </div>
+</body>
+</html>
