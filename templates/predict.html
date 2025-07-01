@@ -3,101 +3,472 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Price Prediction</title>
-
+    <title>Flight Price Prediction</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../static/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .navbar h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .form-container h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .field {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-control, .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .duration-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn-predict {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-predict:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-predict:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .waiting-state {
+            text-align: center;
+            color: #666;
+        }
+
+        .waiting-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        .flight-result {
+            text-align: center;
+            width: 100%;
+        }
+
+        .price-display {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #2d5aa0;
+            margin-bottom: 1rem;
+        }
+
+        .flight-details {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-top: 1.5rem;
+        }
+
+        .flight-route {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .route-arrow {
+            margin: 0 1rem;
+            color: #667eea;
+            font-size: 1.5rem;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .detail-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .error-message {
+            background: #ffe6e6;
+            color: #d63031;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            text-align: center;
+            border: 1px solid #fdcbcb;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .navbar h1 {
+                font-size: 2rem;
+            }
+            
+            .duration-inputs {
+                grid-template-columns: 1fr;
+            }
+            
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-        <!-- Navbar -->
-        <nav class="navbar navbar-dark bg-primary">
-            <div class="container">
-                <span class="navbar-brand mb-0 h1" style="color: rgb(68, 68, 68);">Flight Price Prediction</span>
-            </div>
-        </nav>
-    
-        <div class="formcontainer">
-            <form action="\flight_predict" method="post">
-                
+    <nav class="navbar">
+        <h1>✈️ Flight Price Prediction</h1>
+    </nav>
+
+    <div class="container">
+        <!-- Form Section -->
+        <div class="form-container">
+            <h2>Find Your Flight Price</h2>
+            <form id="predictionForm">
                 <!-- Departure Date -->
                 <div class="field">
                     <label for="departure_date" class="form-label">Departure Date</label>
-                    <input type="datetime-local" id="departure_date" name="departure_date" class="form-control" required>
+                    <input type="date" id="departure_date" name="departure_date" class="form-control" required>
                 </div>
-    
-                <!-- Arrival Date -->
+
+                <!-- Departure Time -->
                 <div class="field">
-                    <label for="arrival_date" class="form-label">Arrival Date</label>
-                    <input type="datetime-local" id="arrival_date" name="arrival_date" class="form-control" required>
+                    <label for="departure_time" class="form-label">Departure Time</label>
+                    <input type="time" id="departure_time" name="departure_time" class="form-control" required>
                 </div>
-    
+
+                <!-- Flight Duration -->
+                <div class="field">
+                    <label class="form-label">Flight Duration</label>
+                    <div class="duration-inputs">
+                        <div>
+                            <input type="number" id="duration_hours" name="duration_hours" 
+                                   class="form-control" placeholder="Hours" min="0" max="24" required>
+                        </div>
+                        <div>
+                            <input type="number" id="duration_minutes" name="duration_minutes" 
+                                   class="form-control" placeholder="Minutes" min="0" max="59" required>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Source -->
                 <div class="field">
-                    <label for="source" class="form-label">Source</label>
+                    <label for="source" class="form-label">From</label>
                     <select id="source" name="source" class="form-select" required>
-                        <option value="" disabled selected>Select Source</option>
+                        <option value="" disabled selected>Select departure city</option>
                         <option value="Delhi">New Delhi</option>
                         <option value="Mumbai">Mumbai</option>
                         <option value="Kolkata">Kolkata</option>
                         <option value="Chennai">Chennai</option>
                     </select>
                 </div>
-    
+
                 <!-- Destination -->
-                    <div class="field">
-                        <label for="destination" class="form-label">Destination</label>
-                        <select id="destination" name="destination" class="form-select" required>
-                            <option value="" disabled selected>Select Destination</option>
-                            <option value="New Delhi">New Delhi</option>
-                            <option value="Delhi">Delhi</option>
-                            <option value="Cochin">Cochin</option>
-                            <option value="Hyderabad">Hyderabad</option>
-                            <option value="Kolkata">Kolkata</option>
-                        </select>
-                    </div>
-    
-                <!-- Stopage -->
                 <div class="field">
-                    <label for="stopage" class="form-label">Stopage</label>
+                    <label for="destination" class="form-label">To</label>
+                    <select id="destination" name="destination" class="form-select" required>
+                        <option value="" disabled selected>Select destination city</option>
+                        <option value="New Delhi">New Delhi</option>
+                        <option value="Delhi">Delhi</option>
+                        <option value="Cochin">Cochin</option>
+                        <option value="Hyderabad">Hyderabad</option>
+                        <option value="Kolkata">Kolkata</option>
+                    </select>
+                </div>
+
+                <!-- Stops -->
+                <div class="field">
+                    <label for="stopage" class="form-label">Number of Stops</label>
                     <select id="stopage" name="stopage" class="form-select" required>
-                        <option value="" disabled selected>Select Stopage</option>
+                        <option value="" disabled selected>Select stops</option>
                         <option value="0">Non-stop</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
+                        <option value="1">1 Stop</option>
+                        <option value="2">2 Stops</option>
                     </select>
                 </div>
-    
-                <!-- Select Airline -->
-                <div class="field   ">
-                    <label for="airline" class="form-label">Select Airline</label>
+
+                <!-- Airline -->
+                <div class="field">
+                    <label for="airline" class="form-label">Airline</label>
                     <select id="airline" name="airline" class="form-select" required>
-                        <option value="" disabled selected>Select Airline</option>
-                        <option value="Jet Airways">Jet Airways </option>                                         
-                        <option value="IndiGo">IndiGo</option>                                            
-                        <option value="Air India">Air India</option>                                            
-                        <option value="Multiple carriers">Multiple carriers</option>                                    
-                        <option value="SpiceJet">SpiceJet</option>                                              
-                        <option value="Vistara">Vistara</option>                                               
-                        <option value="GoAir"> GoAir</option>                                                
-                        <option value="Multiple carriers Premium economy">Multiple carriers Premium economy</option>                      
-                        <option value="Jet Airways Business">Jet Airways Business</option>                                  
-                        <option value="Vistara Premium economy">Vistara Premium economy</option>                               
-                        <option value=" Trujet"> Trujet   </option>                                            
+                        <option value="" disabled selected>Select airline</option>
+                        <option value="Jet Airways">Jet Airways</option>
+                        <option value="IndiGo">IndiGo</option>
+                        <option value="Air India">Air India</option>
+                        <option value="Multiple carriers">Multiple carriers</option>
+                        <option value="SpiceJet">SpiceJet</option>
+                        <option value="Vistara">Vistara</option>
+                        <option value="GoAir">GoAir</option>
+                        <option value="Multiple carriers Premium economy">Multiple carriers Premium economy</option>
+                        <option value="Jet Airways Business">Jet Airways Business</option>
+                        <option value="Vistara Premium economy">Vistara Premium economy</option>
+                        <option value="Trujet">Trujet</option>
                     </select>
                 </div>
-    
-                <!-- Submit Button -->
-                <button type="submit" class="btn btn-primary w-100" value="predict">Predict</button>
+
+                <button type="submit" class="btn-predict" id="predictBtn">
+                    <span id="btnText">Get Price Prediction</span>
+                    <span id="btnLoading" class="loading" style="display: none;"></span>
+                </button>
             </form>
-            
-              <div class="prediction-box">
-                <h3>{{ prediction_text }}</h3>
-            </div>
-            
         </div>
+
+        <!-- Result Section -->
+        <div class="result-container">
+            <div id="waitingState" class="waiting-state">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">✈️</div>
+                <h3>Ready for Flight Search</h3>
+                <p>Fill in your flight details and get an instant price prediction</p>
+            </div>
+
+            <div id="resultDisplay" style="display: none;">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set minimum date to today
+        document.getElementById('departure_date').min = new Date().toISOString().split('T')[0];
+
+        // Form validation
+        document.getElementById('source').addEventListener('change', validateRoutes);
+        document.getElementById('destination').addEventListener('change', validateRoutes);
+
+        function validateRoutes() {
+            const source = document.getElementById('source').value;
+            const destination = document.getElementById('destination').value;
+            
+            if (source && destination && source === destination) {
+                alert('Source and destination cannot be the same!');
+                document.getElementById('destination').value = '';
+            }
+        }
+
+        // Form submission
+        document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitBtn = document.getElementById('predictBtn');
+            const btnText = document.getElementById('btnText');
+            const btnLoading = document.getElementById('btnLoading');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline-block';
+            
+            try {
+                const response = await fetch('/flight_predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayResult(result);
+                } else {
+                    displayError(result.error);
+                }
+            } catch (error) {
+                displayError('Something went wrong. Please try again.');
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                btnText.style.display = 'inline';
+                btnLoading.style.display = 'none';
+            }
+        });
+
+        function displayResult(result) {
+            const waitingState = document.getElementById('waitingState');
+            const resultDisplay = document.getElementById('resultDisplay');
+            
+            waitingState.style.display = 'none';
+            resultDisplay.style.display = 'block';
+            
+            resultDisplay.innerHTML = `
+                <div class="flight-result">
+                    <div class="price-display">₹${result.price.toLocaleString()}</div>
+                    
+                    <div class="flight-route">
+                        ${result.route}
+                    </div>
+                    
+                    <div class="flight-details">
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <div class="detail-label">Departure</div>
+                                <div class="detail-value">${result.departure_datetime}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Arrival</div>
+                                <div class="detail-value">${result.arrival_datetime}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Duration</div>
+                                <div class="detail-value">${result.duration}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Stops</div>
+                                <div class="detail-value">${result.stops === 0 ? 'Non-stop' : result.stops + ' stop(s)'}</div>
+                            </div>
+                        </div>
+                        <div class="detail-item" style="margin-top: 1rem;">
+                            <div class="detail-label">Airline</div>
+                            <div class="detail-value">${result.airline}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayError(errorMessage) {
+            const waitingState = document.getElementById('waitingState');
+            const resultDisplay = document.getElementById('resultDisplay');
+            
+            waitingState.style.display = 'none';
+            resultDisplay.style.display = 'block';
+            
+            resultDisplay.innerHTML = `
+                <div class="error-message">
+                    <strong>Error:</strong> ${errorMessage}
+                </div>
+            `;
+        }
+    </script>
 </body>
 </html>

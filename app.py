@@ -1,7 +1,9 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 import sklearn
 import pickle
 import pandas as pd
+from datetime import datetime, timedelta
+import json
 
 app = Flask(__name__)
 model = pickle.load(open("rf_reg.pkl", "rb"))
@@ -10,36 +12,47 @@ model = pickle.load(open("rf_reg.pkl", "rb"))
 def index():
     return render_template("predict.html")
 
-@app.route("/flight_predict",methods=['GET','POST'])
+@app.route("/flight_predict", methods=['POST'])
 def flight_predict():
-    if request.method == 'GET':
-        return render_template('predict.html')  # Or any default page
-    if request.method == 'POST':
-        # departure
-        date_dep = request.form["departure_date"]
-        if "T" not in date_dep:
-          date_dep += "T00:00"  # Default to midnight
-        Journey_day = int(pd.to_datetime(date_dep, format="%Y-%m-%dT%H:%M").day)
-        Journey_month = int(pd.to_datetime(date_dep,format='%Y-%m-%dT%H:%M').month)
+    try:
+        # Get form data
+        departure_date = request.form["departure_date"]
+        departure_time = request.form["departure_time"]
+        duration_hours = int(request.form["duration_hours"])
+        duration_minutes = int(request.form["duration_minutes"])
         
-        #departure time
-        Dep_hour = int(pd.to_datetime(date_dep, format ="%Y-%m-%dT%H:%M").hour)
-        Dep_min = int(pd.to_datetime(date_dep, format ="%Y-%m-%dT%H:%M").minute)
+        # Combine departure date and time
+        departure_datetime_str = f"{departure_date}T{departure_time}"
+        departure_datetime = pd.to_datetime(departure_datetime_str, format="%Y-%m-%dT%H:%M")
+        
+        # Calculate arrival datetime
+        duration_total_minutes = duration_hours * 60 + duration_minutes
+        arrival_datetime = departure_datetime + timedelta(minutes=duration_total_minutes)
+        
+        # Extract features
+        Journey_day = departure_datetime.day
+        Journey_month = departure_datetime.month
+        Dep_hour = departure_datetime.hour
+        Dep_min = departure_datetime.minute
+        Arrival_hour = arrival_datetime.hour
+        Arrival_min = arrival_datetime.minute
+        Duration_hours = duration_hours
+        Duration_mins = duration_minutes
 
-        #arrival
-        date_ar = request.form["arrival_date"]
-        Arrival_hour = int(pd.to_datetime(date_ar, format="%Y-%m-%dT%H:%M").hour)
-        Arrival_min = int(pd.to_datetime(date_ar,format='%Y-%m-%dT%H:%M').minute)
-
-        #duration
-        Duration_hours = abs(Arrival_hour-Dep_hour)
-        Duration_mins = abs(Arrival_min-Dep_min)
-
-
-        #airline
+        # Get other form data
         airline = request.form['airline']
+        source = request.form["source"]
+        destination = request.form["destination"]
+        Total_Stops = int(request.form["stopage"])
 
-        # Define airline mapping based on HTML options
+        # Validate that source and destination are different
+        if source == destination:
+            return jsonify({
+                'success': False, 
+                'error': 'Source and destination cannot be the same'
+            })
+
+        # Define airline mapping
         airlines = {
             "Jet Airways": "Airline_Jet Airways",
             "IndiGo": "Airline_IndiGo",
@@ -56,32 +69,20 @@ def flight_predict():
 
         # Initialize all airline variables to 0
         airline_vars = {key: 0 for key in airlines.values()}
-
-        # Set the selected airline to 1
         if airline in airlines:
             airline_vars[airlines[airline]] = 1
 
-        #Total stops
-        Total_Stops = int(request.form["stopage"])
-
-        # Get source from form
-        source = request.form["source"]
         # Define source mapping
         sources = {
-        
             "Delhi": "Source_Delhi",
             "Mumbai": "Source_Mumbai",
             "Kolkata": "Source_Kolkata",
             "Chennai": "Source_Chennai"
         }
-        # Initialize all source variables to 0
         source_vars = {key: 0 for key in sources.values()}
-        # Set the selected source to 1
         if source in sources:
             source_vars[sources[source]] = 1
 
-        # Get destination from form
-        destination = request.form["destination"]
         # Define destination mapping
         destinations = {
             "New Delhi": "Destination_New Delhi",
@@ -90,12 +91,11 @@ def flight_predict():
             "Hyderabad": "Destination_Hyderabad",
             "Kolkata": "Destination_Kolkata"
         }
-        # Initialize all destination variables to 0
         destination_vars = {key: 0 for key in destinations.values()}
-        # Set the selected destination to 1
         if destination in destinations:
             destination_vars[destinations[destination]] = 1
 
+        # Make prediction
         prediction = model.predict([[
             Total_Stops,
             Journey_day,
@@ -106,15 +106,29 @@ def flight_predict():
             Arrival_min,
             Duration_hours,
             Duration_mins,
-            *airline_vars.values(),   # Airline variables
-            *source_vars.values(),    # Source variables
-            *destination_vars.values() # Destination variables
+            *airline_vars.values(),
+            *source_vars.values(),
+            *destination_vars.values()
         ]])
         
-    output=round(prediction[0],2)
-
-    return render_template('predict.html',prediction_text="Your Flight price is Rs. {}".format(output))
-
+        output = round(prediction[0], 2)
+        
+        # Format the result with flight details
+        result = {
+            'success': True,
+            'price': output,
+            'departure_datetime': departure_datetime.strftime("%Y-%m-%d %H:%M"),
+            'arrival_datetime': arrival_datetime.strftime("%Y-%m-%d %H:%M"),
+            'duration': f"{duration_hours}h {duration_minutes}m",
+            'route': f"{source} → {destination}",
+            'airline': airline,
+            'stops': Total_Stops
+        }
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 if __name__ == "__main__":
-    app.run(debug=True) 
+    app.run(debug=True)
